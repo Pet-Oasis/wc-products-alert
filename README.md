@@ -6,7 +6,7 @@ Te notification will be sent to the website admin email.<br>
 
 Notification will contain the price difference and any other changes as a JSON.
 
-###Example
+### Example
 ```html
 ================================
 Product #32784 edited.
