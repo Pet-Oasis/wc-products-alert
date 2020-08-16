@@ -22,6 +22,36 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
 
+    register_activation_hook( __FILE__, 'alert_plugin_activation' );
+    function alert_plugin_activation() {
+        if ( ! wp_next_scheduled( 'products_alert_queue' ) ) {
+            wp_schedule_event( time(), 'hourly', 'products_alert_queue' );
+        }
+    }
+
+    /*
+     * Products alert Queue Check
+     */
+    function products_alert_queue() {
+        $alert_queue = get_option('products_alert_queue');
+        if(!empty($alert_queue) || $alert_queue!= ''){
+            $body = '';
+
+            foreach ($alert_queue as $alert){
+                $body =  $body.strval($alert);
+            }
+
+            $to = get_bloginfo ( 'admin_email' );
+            $headers = array('Content-Type: text/html; charset=UTF-8');
+            $subject = 'Products edited alert';
+            $mail = wp_mail( $to, $subject, $body, $headers );
+            if($mail)
+            update_option("products_alert_queue",array());
+        }
+    }
+    add_filter( 'products_alert_queue', 'products_alert_queue' );
+
+
     add_action('woocommerce_before_product_object_save', 'product_edited_alert', 10, 3);
 
     function product_edited_alert(  $product , $data_store ) {
@@ -31,25 +61,16 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
         if(sizeof($changes) > 0){
             $product = wc_get_product($product_data['id']);
-
-            $to = get_bloginfo ( 'admin_email' );
-            $subject = 'Product #'.$product_data['id'].' edited. discount alert';
-
-            $body2 = '';
+            $body2 = "<br><br>================================<br><br>";
+            $body2 = $body2 .'Product #'.$product_data['id'].' edited.'."<br>";
             if(isset($changes['regular_price'])){
                 $body2 = $body2."Old price : ".$product->get_regular_price();
                 $body2 = $body2."<br>New price : ".$changes['regular_price'];
-
             }
-
             if(isset($changes['sale_price'])){
                 $body2 = $body2."<br><br>Old sale price : ".$product->get_sale_price();
                 $body2 = $body2."<br>New sale price : ".$changes['sale_price'];
-
-
             }
-
-
 
             $body2 = $body2."<br><br>User : ".$user->user_login;
 
@@ -63,11 +84,14 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
                 $body2 = $body2."<br>Discoint alert : ".floatval(($price - $sale_price)/ $price);
             }
 
-            $body2 = $body2 . "<br><br><br>================================<br> Changes Json :<br><br>".json_encode($changes);
-            $headers = array('Content-Type: text/html; charset=UTF-8');
+            $body2 = $body2 . "<br><br><br>****************************<br> Changes Json :<br><br>".json_encode($changes);
 
-            wp_mail( $to, $subject, $body2, $headers );
-
+            $products_alert_queue = get_option('products_alert_queue');
+            if( $products_alert_queue ==""){
+                $products_alert_queue = array();
+            }
+            array_push($products_alert_queue,$body2);
+            update_option("products_alert_queue",$products_alert_queue);
         }
     }
 }
