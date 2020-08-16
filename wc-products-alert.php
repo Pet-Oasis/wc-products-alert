@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name:  WooCommerce Products Edits Alert
+Plugin Name:  WC Products Edits Alert
 Plugin URI:   #
 Description:  This plugin will send alert email if any product edited.
 Version:      1.0.0

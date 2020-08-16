@@ -1,6 +1,6 @@
 # === WC Products Edits Alert ===
 
-This plugin will send a notification if any WooCommerce product edited.
+This plugin will send a notification if any WooCommerce product edited. So that the website admin can follow the changes that are made to the products by shop managers.
 <br>
 Te notification will be sent to the website admin email.<br>
 
