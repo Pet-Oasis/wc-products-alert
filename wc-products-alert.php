@@ -1,15 +1,14 @@
 <?php
 /*
-Plugin Name:  WooCommerce products alerts
+Plugin Name:  WooCommerce Products Edits Alert
 Plugin URI:   #
-Description:  This plugin will send alert email if any product edited
+Description:  This plugin will send alert email if any product edited.
 Version:      1.0.0
 Author:       Abdalsalaam Halawa
+Tags: woocommerce, products, email, alert
 Author URI:
-License:      GPL2
-License URI:  https://www.gnu.org/licenses/gpl-2.0.html
-Text Domain:  wcrestapiproxy
-Domain Path:  /languages
+License:      GPL3
+License URI:  http://www.gnu.org/licenses/gpl-3.0.html
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
