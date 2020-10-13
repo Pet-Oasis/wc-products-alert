@@ -20,11 +20,19 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Check if WooCommerce is active
  */
 if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
+    function every_m1( $schedules ) {
+        $schedules['every_m1'] = array(
+            'interval' => 1800,
+            'display'  => __( 'every_30m' ),
+        );
+        return $schedules;
+    }
+    add_filter( 'cron_schedules', 'every_30m' );
 
     register_activation_hook( __FILE__, 'alert_plugin_activation' );
     function alert_plugin_activation() {
         if ( ! wp_next_scheduled( 'products_alert_queue' ) ) {
-            wp_schedule_event( time(), 'hourly', 'products_alert_queue' );
+            wp_schedule_event( time(), 'every_30m', 'products_alert_queue' );
         }
     }
 
@@ -33,7 +41,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
      */
     function products_alert_queue() {
         $alert_queue = get_option('products_alert_queue');
-        if(!empty($alert_queue) || $alert_queue!= ''){
+        if($alert_queue != '' && !empty($alert_queue)){
             $body = '';
 
             foreach ($alert_queue as $alert){
@@ -45,14 +53,12 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
             $subject = 'Products edited alert';
             $mail = wp_mail( $to, $subject, $body, $headers );
             if($mail)
-            update_option("products_alert_queue",array());
+            update_option("products_alert_queue",'');
         }
     }
     add_filter( 'products_alert_queue', 'products_alert_queue' );
 
-
     add_action('woocommerce_before_product_object_save', 'product_edited_alert', 10, 3);
-
     function product_edited_alert(  $product , $data_store ) {
         $product_data = $product->get_data();
         $changes = $product->get_changes();
@@ -86,7 +92,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
             $body2 = $body2 . "<br><br><br>****************************<br> Changes Json :<br><br>".json_encode($changes);
 
             $products_alert_queue = get_option('products_alert_queue');
-            if( $products_alert_queue ==""){
+            if( $products_alert_queue == ""){
                 $products_alert_queue = array();
             }
             array_push($products_alert_queue,$body2);
