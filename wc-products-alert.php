@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
     function every_m1( $schedules ) {
-        $schedules['every_m1'] = array(
+        $schedules['every_30m'] = array(
             'interval' => 1800,
             'display'  => __( 'every_30m' ),
         );
